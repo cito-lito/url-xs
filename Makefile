@@ -40,7 +40,7 @@ add_migration:
 ifndef name
 	$(error name is not set: --* Usage: make add_migration name=migration_name *--)
 endif
-	@sqlx migrate add -r $(name) --database-url $(DB_URL)
+	@sqlx migrate add -r $(name)
 
 # Create the main database
 db_create:

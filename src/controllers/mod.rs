@@ -1,2 +1,2 @@
-pub mod create_trainer;
+pub mod create;
 pub mod health;

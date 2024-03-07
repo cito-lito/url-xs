@@ -3,11 +3,14 @@ mod models;
 mod routes;
 mod server;
 
+use dotenv::dotenv;
 use server::Server;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // for local dev
     init_env();
+    dotenv().ok();
     env_logger::init();
 
     // start http server
@@ -15,12 +18,7 @@ async fn main() -> std::io::Result<()> {
     server.run().await
 }
 
-// for now till proper config
 fn init_env() {
-    std::env::set_var(
-        "DATABASE_URL",
-        "postgres://postgres:postgres@localhost:5432/app_db",
-    );
     std::env::set_var("RUST_LOG", "debug");
     std::env::set_var("RUST_BACKTRACE", "1");
 }

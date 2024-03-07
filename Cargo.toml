@@ -1,5 +1,5 @@
 [package]
-name = "api-service-rs"
+name = "url-xs"
 version = "0.1.0"
 edition = "2021"
 
@@ -30,7 +30,8 @@ validator = { version = "0.16", features = ["derive"] }
 
 # Other utils
 chrono = { version = "0.4.22", features = ["serde"] }
-uuid = { version = "1.6.1", features = ["v4", "fast-rng", "serde"] }
 env_logger = "0.10.2"
 color-eyre = "0.5"
 log = "0.4.20"
+nanoid = "0.4.0"
+dotenv = "0.15.0"
