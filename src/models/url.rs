@@ -1,6 +1,5 @@
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use validator::Validate;
 
 #[derive(Debug)]
 pub struct UrlDbObject {
@@ -21,7 +20,7 @@ impl UrlDbObject {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Validate)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UrlRequest {
     pub long_url: String,
     pub user_id: String,
@@ -32,6 +31,7 @@ pub struct UrlResponse {
     pub short_url: String,
     pub long_url: String,
     pub user_id: String,
+    pub short_code: String,
     pub created_at: chrono::NaiveDateTime,
 }
 
@@ -49,6 +49,7 @@ impl UrlResponse {
             short_url,
             long_url,
             user_id,
+            short_code,
             created_at,
         }
     }
@@ -61,6 +62,7 @@ impl UrlResponse {
             short_url,
             long_url: data.long_url,
             user_id: data.user_id,
+            short_code: data.id,
             created_at: data.created_at,
         }
     }

@@ -11,6 +11,10 @@ async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlRequest>) 
         return HttpResponse::BadRequest().json("error: invalid url");
     }
 
+    if !validate_short_code(&url_dto.user_id) {
+        return HttpResponse::BadRequest().json("error: invalid user id");
+    }
+
     let get_query = match sqlx::query_as!(
         UrlDbObject,
         "Select id, long_url, created_at, user_id from urls where long_url = $1 and user_id = $2",
@@ -57,4 +61,11 @@ fn is_valid_https_url(url_str: &str) -> bool {
         Ok(url) => url.scheme() == "https",
         Err(_) => false,
     }
+}
+
+fn validate_short_code(short_code: &str) -> bool {
+    short_code.len() == 8
+        && short_code
+            .chars()
+            .all(|c| c.is_ascii_digit() || c.is_ascii_alphabetic() || c == '_' || c == '-')
 }
