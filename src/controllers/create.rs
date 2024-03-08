@@ -1,15 +1,14 @@
-use crate::models::url::{UrlDbObject, UrlDto, UrlResponse};
+use crate::models::url::{UrlDbObject, UrlRequest, UrlResponse};
 use crate::server::AppState;
 use actix_web::{post, web, HttpResponse, Responder};
-use validator::Validate;
+use url::Url;
 
 #[post("/create")]
-pub async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlDto>) -> impl Responder {
+async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlRequest>) -> impl Responder {
     let url_dto = url_dto.into_inner();
 
-    if let Err(validation_error) = url_dto.validate() {
-        log::error!("Validation error: {:?}", validation_error);
-        return HttpResponse::BadRequest().json("error: malformed url");
+    if !is_valid_https_url(&url_dto.long_url) {
+        return HttpResponse::BadRequest().json("error: invalid url");
     }
 
     let get_query = match sqlx::query_as!(
@@ -29,7 +28,7 @@ pub async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlDto>) 
     };
 
     if let Some(url) = get_query {
-        let res = UrlResponse::new(url.id, url.long_url, url.user_id, url.created_at);
+        let res = UrlResponse::from_db_obj(url);
         return HttpResponse::Ok().json(res);
     }
 
@@ -50,10 +49,12 @@ pub async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlDto>) 
             }
         };
 
-    HttpResponse::Ok().json(UrlResponse::new(
-        create_query.id,
-        create_query.long_url,
-        create_query.user_id,
-        create_query.created_at,
-    ))
+    HttpResponse::Ok().json(UrlResponse::from_db_obj(create_query))
+}
+
+fn is_valid_https_url(url_str: &str) -> bool {
+    match Url::parse(url_str) {
+        Ok(url) => url.scheme() == "https",
+        Err(_) => false,
+    }
 }

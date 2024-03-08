@@ -22,13 +22,12 @@ impl UrlDbObject {
 }
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
-pub struct UrlDto {
-    #[validate(url)]
+pub struct UrlRequest {
     pub long_url: String,
     pub user_id: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UrlResponse {
     pub short_url: String,
     pub long_url: String,
@@ -37,18 +36,32 @@ pub struct UrlResponse {
 }
 
 impl UrlResponse {
-    pub fn new(
+    pub fn _new(
         short_code: String,
         long_url: String,
         user_id: String,
         created_at: chrono::NaiveDateTime,
     ) -> Self {
-        const BASE_URL: &str = "http://localhost:3030/";
+        const BASE_URL: &str = "http://localhost:3003/";
+        let short_url = format!("{}{}", BASE_URL, short_code);
+
         Self {
-            short_url: format!("{}{}", BASE_URL, short_code),
+            short_url,
             long_url,
             user_id,
             created_at,
+        }
+    }
+
+    pub fn from_db_obj(data: UrlDbObject) -> Self {
+        const BASE_URL: &str = "http://localhost:3003/";
+        let short_url = format!("{}{}", BASE_URL, data.id);
+
+        Self {
+            short_url,
+            long_url: data.long_url,
+            user_id: data.user_id,
+            created_at: data.created_at,
         }
     }
 }
