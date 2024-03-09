@@ -35,6 +35,59 @@ pub struct UrlResponse {
     pub created_at: chrono::NaiveDateTime,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserUrls {
+    pub short_url: String,
+    pub long_url: String,
+    pub created_at: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserUrlsResponse {
+    pub user_id: String,
+    pub urls: Vec<UserUrls>,
+    pub pagination: PaginationMetadata,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PaginationMetadata {
+    pub total_urls: u64,
+    pub total_pages: u64,
+    pub current_page: u64,
+    pub page_size: u64,
+}
+
+impl UserUrls {
+    pub fn from_db_obj(data: UrlDbObject) -> Self {
+        const BASE_URL: &str = "http://localhost:3003/";
+        let short_url = format!("{}{}", BASE_URL, data.id);
+
+        Self {
+            short_url,
+            long_url: data.long_url,
+            created_at: data.created_at.to_string(),
+        }
+    }
+}
+
+impl UserUrlsResponse {
+    pub fn from_db_obj(
+        data: Vec<UrlDbObject>,
+        user_id: String,
+        pagination: PaginationMetadata,
+    ) -> Self {
+        let mut urls = Vec::new();
+        for url in data {
+            urls.push(UserUrls::from_db_obj(url));
+        }
+        Self {
+            user_id,
+            urls,
+            pagination,
+        }
+    }
+}
+
 impl UrlResponse {
     pub fn _new(
         short_code: String,
