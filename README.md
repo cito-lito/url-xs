@@ -9,13 +9,12 @@
 
 - Users can have many short urls, users for now will not be authenticated.
 
-### Approach: use nanoId to generate unique short codes i.e, IDs 
+### Approach: 
+use nanoId to generate unique short codes i.e, IDs 
 
 #### Advantages:
 - Simple implementation, 
 - Fast lookup given the short code
-
-
 
 #### Disadvantages:
 
@@ -26,4 +25,16 @@
 - add expiration time for the short codes and remove them from the database
 - or use another approach to generate unique codes.
 
-...
+
+### How to run locally
+#### requirements: 
+- rust installed locally : [install rust](https://www.rust-lang.org/tools/install)
+- docker and docker-compose: [install docker](https://docs.docker.com/get-docker/)
+#### run the project:
+- clone the repository
+- set the .env for local dev, check the .env.example 
+- ```Make init``` to setup the project
+- ```Make run``` to run the project
+- ```Make test``` to run the tests
+
+- DB admin tool: pgAdmin, (check the docker-compose for cred): [more info](https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html)
