@@ -37,7 +37,7 @@ async fn test_redirect() {
     let short_code = body.short_code;
 
     let resp = test::TestRequest::get()
-        .uri(&format!("/redirect/{}", short_code))
+        .uri(&format!("/{}", short_code))
         .send_request(&app)
         .await;
 

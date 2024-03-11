@@ -87,7 +87,7 @@ fn generate_mock_user_url_entry(user_id: &str) -> UrlRequest {
 
 fn generate_simple_random_url() -> String {
     let mut rng = rand::thread_rng();
-    let path_length: usize = rng.gen_range(7..42); 
+    let path_length: usize = rng.gen_range(7..42);
     let path: String = rng
         .sample_iter(&Alphanumeric)
         .take(path_length)

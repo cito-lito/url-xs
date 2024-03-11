@@ -1,7 +1,7 @@
 use crate::{models::url::UrlDbObject, server::AppState};
 use actix_web::{get, http::header::LOCATION, web, HttpResponse, Responder};
 
-#[get("/redirect/{short_code}")]
+#[get("/{short_code}")]
 async fn redirect(app_state: web::Data<AppState>, path: web::Path<String>) -> impl Responder {
     let short_code = path.into_inner();
 
