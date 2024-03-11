@@ -35,7 +35,7 @@ impl Server {
             App::new()
                 .wrap(Compress::default())
                 .wrap(Logger::default())
-                .wrap(Cors::default())
+                .wrap(Cors::permissive())
                 .app_data(web::Data::new(AppState { db: pool.clone() }))
                 .configure(config_routes)
         })

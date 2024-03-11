@@ -21,12 +21,14 @@ impl UrlDbObject {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UrlRequest {
     pub long_url: String,
     pub user_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UrlResponse {
     pub short_url: String,
     pub long_url: String,
@@ -36,6 +38,7 @@ pub struct UrlResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UserUrls {
     pub short_url: String,
     pub long_url: String,
@@ -43,6 +46,7 @@ pub struct UserUrls {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UserUrlsResponse {
     pub user_id: String,
     pub urls: Vec<UserUrls>,
@@ -50,6 +54,7 @@ pub struct UserUrlsResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct PaginationMetadata {
     pub total_urls: u64,
     pub total_pages: u64,
