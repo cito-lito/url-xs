@@ -16,7 +16,7 @@ async fn get_user_urls(
     params: web::Query<UrlQueryParams>,
 ) -> impl Responder {
     let user_id = path.into_inner();
-    let limit = params.limit.unwrap_or(10);
+    let limit = params.limit.unwrap_or(5);
     let offset = (params.offset.unwrap_or(1) - 1) * limit;
 
     if !validate_short_code(&user_id) {
