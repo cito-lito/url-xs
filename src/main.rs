@@ -14,7 +14,9 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     // start http server
-    let server = Server::new("127.0.0.1".to_string(), 3003);
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3003".to_string());
+    let host = "127.0.0.1".to_string();
+    let server = Server::new(host, port.parse().unwrap());
     server.run().await
 }
 
