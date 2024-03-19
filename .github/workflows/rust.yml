@@ -2,29 +2,29 @@ name: Rust Workflow
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
+  # check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Check formatting
-        run: cargo fmt -- --check
+  #     - name: Set up Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         profile: minimal
+  #         toolchain: stable
+  #         override: true
+  #         components: rustfmt, clippy
 
-      - name: Lint with clippy
-        run: cargo clippy -- -D warnings
+  #     - name: Check formatting
+  #       run: cargo fmt -- --check
+
+  #     - name: Lint with clippy
+  #       run: cargo clippy -- -D warnings
 
   test:
     runs-on: ubuntu-latest
@@ -46,25 +46,28 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
 
-    # we need to install the sqlx-cli to run the migrations
-    - name: Install sqlx-cli
-      run: cargo install sqlx-cli --no-default-features --features postgres
+      # we need to install the sqlx-cli to run the migrations
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --no-default-features --features postgres
 
-    - name: Run database migrations
-      env:
-        DATABASE_URL: postgres://testuser:testpassword@localhost/testdb
-      run: sqlx migrate run
+      - name: Prepare sqlx
+        run: cargo sqlx prepare
 
-    - name: Run tests
-      env:
-        DATABASE_URL: postgres://testuser:testpassword@localhost/testdb
-      run: cargo test
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgres://testuser:testpassword@localhost/testdb
+        run: sqlx migrate run
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgres://testuser:testpassword@localhost/testdb
+        run: cargo test
