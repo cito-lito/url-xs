@@ -1,22 +1,51 @@
-name: Rust
+name: Rust Test Workflow
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
-
-env:
-  CARGO_TERM_COLOR: always
+    branches: [ main ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        # wait for the database to be ready
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
+    - uses: actions/checkout@v2
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+
+    # we need to install the sqlx-cli to run the migrations
+    - name: Install sqlx-cli
+      run: cargo install sqlx-cli --no-default-features --features postgres
+
+    - name: Run database migrations
+      env:
+        DATABASE_URL: postgres://testuser:testpassword@localhost/testdb
+      run: sqlx migrate run
+
     - name: Run tests
-      run: cargo test --verbose
+      env:
+        DATABASE_URL: postgres://testuser:testpassword@localhost/testdb
+      run: cargo test
