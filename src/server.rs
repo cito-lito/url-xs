@@ -1,6 +1,7 @@
 use actix_cors::Cors;
 use actix_web::{
-    middleware::{Compress, Logger},
+    http::header,
+    middleware::{Compress, DefaultHeaders, Logger},
     web, App, HttpServer,
 };
 
@@ -32,10 +33,20 @@ impl Server {
         .expect("Failed to create pool.");
 
         HttpServer::new(move || {
+            let cors = Cors::default()
+                .allowed_methods(vec!["GET", "POST"])
+                .allowed_header(header::CONTENT_TYPE)
+                .max_age(3600);
             App::new()
                 .wrap(Compress::default())
                 .wrap(Logger::default())
-                .wrap(Cors::permissive())
+                .wrap(cors)
+                .wrap(
+                    DefaultHeaders::new()
+                        .add(("X-FRAME-OPTIONS", "SAMEORIGIN"))
+                        .add(("X-Content-Type-Options", "nosniff"))
+                        .add(("X-XSS-Protection", "1; mode=block")),
+                )
                 .app_data(web::Data::new(AppState { db: pool.clone() }))
                 .configure(config_routes)
         })
