@@ -1,4 +1,4 @@
-name: Rust Test Workflow
+name: Rust Workflow
 
 on:
   push:
@@ -7,6 +7,25 @@ on:
     branches: [ main ]
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Check formatting
+        run: cargo fmt -- --check
+
+      - name: Lint with clippy
+        run: cargo clippy -- -D warnings
+
   test:
     runs-on: ubuntu-latest
 
