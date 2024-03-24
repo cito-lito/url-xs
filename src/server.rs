@@ -32,9 +32,13 @@ impl Server {
         .await
         .expect("Failed to create pool.");
 
+        let origin =
+            std::env::var("ORIGIN_URL").unwrap_or_else(|_| "http://localhost:5173".to_string());
+
+        log::info!("ORIGIN URL: {}",origin);
         HttpServer::new(move || {
             let cors = Cors::default()
-                .allowed_origin("http://localhost:5173")
+                .allowed_origin(&origin)
                 .allowed_methods(vec!["GET", "POST"])
                 .allowed_header(header::CONTENT_TYPE)
                 .max_age(3600);
