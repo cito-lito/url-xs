@@ -35,7 +35,7 @@ impl Server {
         let origin =
             std::env::var("ORIGIN_URL").unwrap_or_else(|_| "http://localhost:5173".to_string());
 
-        log::info!("ORIGIN URL: {}",origin);
+        log::info!("ORIGIN URL: {}", origin);
         HttpServer::new(move || {
             let cors = Cors::default()
                 .allowed_origin(&origin)

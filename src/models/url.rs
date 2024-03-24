@@ -1,5 +1,6 @@
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 #[derive(Debug)]
 pub struct UrlDbObject {
@@ -64,8 +65,10 @@ pub struct PaginationMetadata {
 
 impl UserUrls {
     pub fn from_db_obj(data: UrlDbObject) -> Self {
-        const BASE_URL: &str = "http://localhost:3003/";
-        let short_url = format!("{}{}", BASE_URL, data.id);
+        let base_url =
+            std::env::var("SERVER_URL").unwrap_or_else(|_| "http://localhost:3003".to_string());
+        let base_url = Url::parse(&base_url).unwrap();
+        let short_url = format!("{}{}", &base_url, data.id);
 
         Self {
             short_url,
@@ -94,27 +97,11 @@ impl UserUrlsResponse {
 }
 
 impl UrlResponse {
-    pub fn _new(
-        short_code: String,
-        long_url: String,
-        user_id: String,
-        created_at: chrono::NaiveDateTime,
-    ) -> Self {
-        const BASE_URL: &str = "http://localhost:3003/";
-        let short_url = format!("{}{}", BASE_URL, short_code);
-
-        Self {
-            short_url,
-            long_url,
-            user_id,
-            short_code,
-            created_at,
-        }
-    }
-
     pub fn from_db_obj(data: UrlDbObject) -> Self {
-        const BASE_URL: &str = "http://localhost:3003/";
-        let short_url = format!("{}{}", BASE_URL, data.id);
+        let base_url =
+            std::env::var("SERVER_URL").unwrap_or_else(|_| "http://localhost:3003".to_string());
+        let base_url = Url::parse(&base_url).unwrap();
+        let short_url = format!("{}{}", base_url, data.id);
 
         Self {
             short_url,
