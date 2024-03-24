@@ -32,8 +32,7 @@ impl Server {
         .await
         .expect("Failed to create pool.");
 
-        let origin =
-            std::env::var("ORIGIN_URL").unwrap_or_else(|_| "http://localhost:5173".to_string());
+        let origin = std::env::var("ORIGIN_URL").unwrap_or("http://localhost:5173".to_string());
 
         log::info!("ORIGIN URL: {}", origin);
         HttpServer::new(move || {

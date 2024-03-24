@@ -65,10 +65,12 @@ pub struct PaginationMetadata {
 
 impl UserUrls {
     pub fn from_db_obj(data: UrlDbObject) -> Self {
-        let base_url =
-            std::env::var("SERVER_URL").unwrap_or_else(|_| "http://localhost:3003".to_string());
-        let base_url = Url::parse(&base_url).unwrap();
-        let short_url = format!("{}{}", &base_url, data.id);
+        let base_url = std::env::var("SERVER_URL").unwrap_or("http://localhost:3003".to_string());
+        let short_url = Url::parse(&base_url)
+            .unwrap()
+            .join(&data.id)
+            .unwrap()
+            .to_string();
 
         Self {
             short_url,
@@ -98,10 +100,12 @@ impl UserUrlsResponse {
 
 impl UrlResponse {
     pub fn from_db_obj(data: UrlDbObject) -> Self {
-        let base_url =
-            std::env::var("SERVER_URL").unwrap_or_else(|_| "http://localhost:3003".to_string());
-        let base_url = Url::parse(&base_url).unwrap();
-        let short_url = format!("{}{}", base_url, data.id);
+        let base_url = std::env::var("SERVER_URL").unwrap_or("http://localhost:3003".to_string());
+        let short_url = Url::parse(&base_url)
+            .unwrap()
+            .join(&data.id)
+            .unwrap()
+            .to_string();
 
         Self {
             short_url,
