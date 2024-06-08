@@ -32,7 +32,7 @@ async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlRequest>) 
     };
 
     if let Some(url) = get_query {
-        let res = UrlResponse::from_db_obj(url);
+        let res: UrlResponse = url.into();
         return HttpResponse::Ok().json(res);
     }
 
@@ -53,7 +53,7 @@ async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlRequest>) 
             }
         };
 
-    HttpResponse::Ok().json(UrlResponse::from_db_obj(create_query))
+    HttpResponse::Ok().json(UrlResponse::from(create_query))
 }
 
 fn is_valid_https_url(url_str: &str) -> bool {

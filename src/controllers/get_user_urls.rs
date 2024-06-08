@@ -66,7 +66,7 @@ async fn get_user_urls(
         page_size: user_urls.len() as u64,
     };
 
-    let res = UserUrlsResponse::from_db_obj(user_urls, user_id, metadata);
+    let res: UserUrlsResponse = (user_urls, user_id, metadata).into();
     HttpResponse::Ok().json(res)
 }
 

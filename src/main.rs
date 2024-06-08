@@ -8,8 +8,8 @@ use server::Server;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // for local dev
-    init_env();
+    std::env::set_var("RUST_LOG", "DEBUG");
+    std::env::set_var("RUST_BACKTRACE", "1");
     dotenv().ok();
     env_logger::init();
 
@@ -18,9 +18,4 @@ async fn main() -> std::io::Result<()> {
     let host = "0.0.0.0".to_string();
     let server = Server::new(host, port.parse().unwrap());
     server.run().await
-}
-
-fn init_env() {
-    std::env::set_var("RUST_LOG", "debug");
-    std::env::set_var("RUST_BACKTRACE", "1");
 }

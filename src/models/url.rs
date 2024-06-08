@@ -63,15 +63,15 @@ pub struct PaginationMetadata {
     pub page_size: u64,
 }
 
-impl UserUrls {
-    pub fn from_db_obj(data: UrlDbObject) -> Self {
-        let base_url = std::env::var("SERVER_URL").unwrap_or("http://localhost:3003".to_string());
+impl From<UrlDbObject> for UserUrls {
+    fn from(data: UrlDbObject) -> Self {
+        let base_url =
+            std::env::var("SERVER_URL").unwrap_or_else(|_| "http://localhost:3003/".to_string());
         let short_url = Url::parse(&base_url)
             .unwrap()
             .join(&data.id)
             .unwrap()
             .to_string();
-
         Self {
             short_url,
             long_url: data.long_url,
@@ -80,16 +80,11 @@ impl UserUrls {
     }
 }
 
-impl UserUrlsResponse {
-    pub fn from_db_obj(
-        data: Vec<UrlDbObject>,
-        user_id: String,
-        pagination: PaginationMetadata,
-    ) -> Self {
-        let mut urls = Vec::new();
-        for url in data {
-            urls.push(UserUrls::from_db_obj(url));
-        }
+impl From<(Vec<UrlDbObject>, String, PaginationMetadata)> for UserUrlsResponse {
+    fn from(params: (Vec<UrlDbObject>, String, PaginationMetadata)) -> Self {
+        let (data, user_id, pagination) = params;
+        let urls = data.into_iter().map(UserUrls::from).collect();
+
         Self {
             user_id,
             urls,
@@ -98,15 +93,15 @@ impl UserUrlsResponse {
     }
 }
 
-impl UrlResponse {
-    pub fn from_db_obj(data: UrlDbObject) -> Self {
-        let base_url = std::env::var("SERVER_URL").unwrap_or("http://localhost:3003".to_string());
+impl From<UrlDbObject> for UrlResponse{
+    fn from(data: UrlDbObject) -> Self {
+        let base_url =
+            std::env::var("SERVER_URL").unwrap_or_else(|_| "http://localhost:3003/".to_string());
         let short_url = Url::parse(&base_url)
             .unwrap()
             .join(&data.id)
             .unwrap()
             .to_string();
-
         Self {
             short_url,
             long_url: data.long_url,

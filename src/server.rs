@@ -25,12 +25,10 @@ impl Server {
     pub async fn run(&self) -> std::io::Result<()> {
         log::info!("Starting server at http://{}:{}", self.host, self.port);
 
-        let pool = PgPool::connect(
-            &std::env::var("DATABASE_URL")
-                .expect("DATABASE_URL must be set: export DATABASE_URL=..."),
-        )
-        .await
-        .expect("Failed to create pool.");
+        let pool =
+            PgPool::connect(&std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
+                .await
+                .expect("Failed to create pool.");
 
         let origin = std::env::var("ORIGIN_URL").unwrap_or("http://localhost:5173".to_string());
 

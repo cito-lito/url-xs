@@ -66,3 +66,23 @@ test_migrate: test_db_create
 test:
 	@echo "Running tests..."
 	cargo test -- --test-threads=1 --nocapture --color always
+
+
+###### runing on vps, not for local dev
+run-prod:
+	up
+	cargo build --release
+	sudo supervisorctl reread
+	sudo supervisorctl update
+	sudo supervisorctl start url_xs
+
+server-status:
+	sudo supervisorctl status url_xs
+
+server-logs:
+	sudo supervisorctl tail -f url_xs
+
+server-stop:
+	sudo supervisorctl stop url_xs
+	sudo supervisorctl shutdown
+	docker-compose down
