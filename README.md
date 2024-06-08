@@ -37,4 +37,3 @@ use nanoId to generate unique short codes i.e, IDs
 - ```Make run``` to run the project
 - ```Make test``` to run the tests
 
-- DB admin tool: pgAdmin, (check the docker-compose for cred): [more info](https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html)
