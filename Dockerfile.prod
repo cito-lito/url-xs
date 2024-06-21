@@ -1,0 +1,33 @@
+FROM rust:1.75.0 as builder
+
+WORKDIR /app
+
+COPY Cargo.toml ./
+
+# Create the src directory and a dummy main file to build dependencies
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+
+# Fetch dependencies and build
+RUN cargo build --release
+
+# Remove the dummy main file
+RUN rm src/main.rs
+
+# Copy the source code
+COPY . .
+
+# Build the application
+RUN cargo build --release
+
+# Stage 2: Create a lightweight image to run the application
+FROM gcr.io/distroless/cc
+
+WORKDIR /app
+
+# Copy the binary from the builder stage
+COPY --from=builder /app/target/release/url-xs .
+
+# Copy any other required files (e.g., migrations, config files)
+COPY --from=builder /app/migrations ./migrations
+
+CMD ["./url-xs"]
