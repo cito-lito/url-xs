@@ -1,5 +1,6 @@
-mod controllers;
-mod models;
+mod application;
+mod domain;
+mod infrastructure;
 mod routes;
 mod server;
 

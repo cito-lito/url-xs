@@ -65,7 +65,7 @@ test_migrate: test_db_create
 # Run tests in single-threaded mode
 test:
 	@echo "Running tests..."
-	cargo test -- --test-threads=1 --nocapture --color always
+	cargo test -- --nocapture --color always
 
 
 ###### runing on vps

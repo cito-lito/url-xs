@@ -1,8 +1,6 @@
+use crate::infrastructure::controllers::health::health;
+use crate::infrastructure::controllers::url_controllers::{create, get_user_urls, redirect};
 use actix_web::web;
-
-use crate::controllers::{
-    create::create, get_user_urls::get_user_urls, health::health, redirect::redirect,
-};
 
 pub fn config_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(health);
