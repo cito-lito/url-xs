@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM urls WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+  "query": "SELECT id, long_url, created_at, user_id FROM urls WHERE long_url = $1 AND user_id = $2",
   "describe": {
     "columns": [
       {
@@ -15,20 +15,19 @@
       },
       {
         "ordinal": 2,
-        "name": "user_id",
-        "type_info": "Bpchar"
+        "name": "created_at",
+        "type_info": "Timestamp"
       },
       {
         "ordinal": 3,
-        "name": "created_at",
-        "type_info": "Timestamp"
+        "name": "user_id",
+        "type_info": "Bpchar"
       }
     ],
     "parameters": {
       "Left": [
-        "Bpchar",
-        "Int8",
-        "Int8"
+        "Text",
+        "Bpchar"
       ]
     },
     "nullable": [
@@ -38,5 +37,5 @@
       false
     ]
   },
-  "hash": "937529c287de95600034df495151508837ab328f887388e17ff86c6713aade4c"
+  "hash": "f30e03118e3a59319ddf9c73ac54c36bc0832c38b9cc82ea0a9a7e7b5ba48fde"
 }

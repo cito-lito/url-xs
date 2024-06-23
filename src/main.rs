@@ -1,5 +1,6 @@
-mod controllers;
-mod models;
+mod application;
+mod domain;
+mod infrastructure;
 mod routes;
 mod server;
 
@@ -14,8 +15,8 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     // start http server
-    let port = std::env::var("PORT").unwrap_or_else(|_| "3003".to_string());
+    let port = std::env::var("PORT").unwrap_or_else(|_| 3003.to_string());
     let host = "0.0.0.0".to_string();
-    let server = Server::new(host, port.parse().unwrap());
+    let server = Server::new(host, port);
     server.run().await
 }

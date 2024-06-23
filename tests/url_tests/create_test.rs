@@ -1,11 +1,10 @@
 use actix_web::{http::StatusCode, test, web, App};
 use nanoid::nanoid;
 use url_xs::{
-    models::url::{UrlRequest, UrlResponse},
+    application::url_dtos::{UrlRequest, UrlResponse},
     server::AppState,
 };
 
-mod utils;
 use crate::utils::{get_test_pool_db, truncate_all_tables};
 
 #[actix_rt::test]

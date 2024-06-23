@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO urls (id, long_url, user_id, created_at) VALUES ($1, $2, $3, $4)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bpchar",
+        "Varchar",
+        "Bpchar",
+        "Timestamp"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f14efded83462babe5e76568c7d22295cd0ad14bf80d4ac24903b55e602e5b02"
+}

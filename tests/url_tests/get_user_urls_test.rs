@@ -2,11 +2,10 @@ use actix_web::{http, test, web, App};
 use nanoid::nanoid;
 use rand::{distributions::Alphanumeric, Rng};
 use url_xs::{
-    models::url::{UrlRequest, UserUrlsResponse},
+    application::url_dtos::{UrlRequest, UserUrlsResponse},
     server::AppState,
 };
 
-mod utils;
 use crate::utils::{get_test_pool_db, truncate_all_tables};
 
 #[actix_rt::test]
