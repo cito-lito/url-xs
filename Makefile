@@ -1,6 +1,6 @@
 # Environment variables for local dev
 TEST_DB_URL := postgres://postgres:postgres@localhost:5432/test_db
-DB_URL:= postgres://postgres:postgres@localhost:5432/app_db
+DATABASE_URL:= postgres://postgres:postgres@localhost:5432/app_db
 MIGRATION_PATH := ./migrations
 
 .PHONY: init setup up clippy fmt check run add_migration db_create migrate revert test_db_create test_migrate test
@@ -20,8 +20,10 @@ setup:
 
 # Start Docker services
 up:
-	@echo "Starting Docker services..."
 	docker-compose up -d
+
+down:
+	docker-compose down --remove-orphans
 
 # Lint the code
 clippy:
@@ -44,15 +46,15 @@ endif
 
 # Create the main database
 db_create:
-	@sqlx database create --database-url $(DB_URL)
+	@sqlx database create --database-url $(DATABASE_URL)
 
 # Run migrations on the main database
 migrate: 
-	@sqlx migrate run --database-url $(DB_URL)
+	@sqlx migrate run --database-url $(DATABASE_URL)
 
 # Revert the last database migration on the main database
 revert:
-	@sqlx migrate revert --database-url $(DB_URL)
+	@sqlx migrate revert --database-url $(DATABASE_URL)
 
 # Create the test database
 test_db_create:
