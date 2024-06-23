@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "Select id, long_url, created_at, user_id from urls where long_url = $1 and user_id = $2",
+  "query": "SELECT id, long_url, created_at, user_id FROM urls WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
   "describe": {
     "columns": [
       {
@@ -26,8 +26,9 @@
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "Bpchar"
+        "Bpchar",
+        "Int8",
+        "Int8"
       ]
     },
     "nullable": [
@@ -37,5 +38,5 @@
       false
     ]
   },
-  "hash": "a77c69506ca0388c231cb808f73d04c6532085c332fcf1d181a6f40abeb7b3a0"
+  "hash": "be034ce2810e41ad1af7b2c947cebcf30dd2e92b0aa83678741da4e9ff482da1"
 }

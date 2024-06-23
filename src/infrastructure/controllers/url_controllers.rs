@@ -1,11 +1,10 @@
+use crate::application::url_dtos::UrlRequest;
+use crate::application::url_use_cases::UrlUseCases;
+use crate::infrastructure::db::url_repositories::PostgresUrlRepository;
 use crate::server::AppState;
 use actix_web::http::header::LOCATION;
 use actix_web::{get, post, web, HttpResponse, Responder};
-use sqlx::PgPool;
 use url::Url;
-
-use crate::application::url_dtos::{PaginationMetadata, UrlRequest, UrlResponse, UserUrlsResponse};
-use crate::domain::models::url::UrlModel;
 
 #[post("/create")]
 async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlRequest>) -> impl Responder {
@@ -19,45 +18,16 @@ async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlRequest>) 
         return HttpResponse::BadRequest().json("error: invalid user id");
     }
 
-    let get_query = match sqlx::query_as!(
-        UrlModel,
-        "Select id, long_url, created_at, user_id from urls where long_url = $1 and user_id = $2",
-        url_dto.long_url,
-        url_dto.user_id
-    )
-    .fetch_optional(&app_state.db)
-    .await
-    {
-        Ok(url) => url,
+    let url_repo = PostgresUrlRepository::new(app_state.db.clone());
+
+    let use_cases = UrlUseCases { url_repo };
+    match use_cases.create_url(url_dto).await {
+        Ok(res) => HttpResponse::Ok().json(res),
         Err(e) => {
-            log::error!("Database error: {:?}", e);
-            return HttpResponse::InternalServerError().json("error: internal server error");
+            log::error!("Failed to create URL: {:?}", e);
+            HttpResponse::InternalServerError().json("Internal server error")
         }
-    };
-
-    if let Some(url) = get_query {
-        let res: UrlResponse = url.into();
-        return HttpResponse::Ok().json(res);
     }
-
-    let url = UrlModel::new(url_dto.long_url, url_dto.user_id);
-    let create_query = match sqlx::query_as!(
-            UrlModel,
-            "insert into urls (id, long_url, user_id, created_at) values ($1, $2, $3, $4) returning id, long_url, user_id, created_at",
-            url.id,
-            url.long_url,
-            url.user_id,
-            url.created_at
-        ).fetch_one(&app_state.db)
-        .await {
-            Ok(url) => url,
-            Err(e) => {
-                log::error!("Database error: {:?}", e);
-                return HttpResponse::InternalServerError().json("error: internal server error");
-            }
-        };
-
-    HttpResponse::Ok().json(UrlResponse::from(create_query))
 }
 
 #[derive(serde::Deserialize)]
@@ -80,59 +50,25 @@ async fn get_user_urls(
         return HttpResponse::BadRequest().json("Invalid user ID format");
     }
 
-    let total_urls = match get_total_user_urls(&app_state.db, &user_id).await {
-        Ok(total) => total,
-        Err(e) => {
-            log::error!("Failed to fetch total user URLs from database: {:?}", e);
-            return HttpResponse::InternalServerError().json("Internal server error");
-        }
-    };
+    let url_repo = PostgresUrlRepository::new(app_state.db.clone());
+    let use_cases = UrlUseCases { url_repo };
 
-    if total_urls == 0 {
-        return HttpResponse::NotFound().json("No URLs found for this user");
-    }
-
-    let total_pages = (total_urls as f64 / limit as f64).ceil() as u64;
-    let current_page = (offset / limit) + 1;
-
-    if current_page > total_pages {
-        return HttpResponse::BadRequest().json("Requested page exceeds total pages");
-    }
-
-    let user_urls = match sqlx::query_as!(
-        UrlModel,
-        "SELECT * FROM urls WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
-        user_id,
-        limit as i64,
-        offset as i64
-    )
-    .fetch_all(&app_state.db)
-    .await
+    match use_cases
+        .get_user_urls(&user_id, limit as i64, offset as i64)
+        .await
     {
-        Ok(urls) => urls,
+        Ok(res) => HttpResponse::Ok().json(res),
         Err(e) => {
-            log::error!("Failed to fetch user URLs from database: {:?}", e);
-            return HttpResponse::InternalServerError().json("Internal server error");
+            log::error!("Failed to get user URLs: {:?}", e);
+            if e.contains("No urls found") {
+                return HttpResponse::NotFound().json("No URLs found");
+            }
+            if e.contains("Invalid page") {
+                return HttpResponse::BadRequest().json("Invalid page");
+            }
+            HttpResponse::InternalServerError().json("Internal server error")
         }
-    };
-
-    let metadata = PaginationMetadata {
-        total_urls,
-        total_pages,
-        current_page,
-        page_size: user_urls.len() as u64,
-    };
-
-    let res: UserUrlsResponse = (user_urls, user_id, metadata).into();
-    HttpResponse::Ok().json(res)
-}
-
-async fn get_total_user_urls(pool: &PgPool, user_id: &str) -> Result<u64, sqlx::Error> {
-    let total_urls = sqlx::query!("SELECT COUNT(*) FROM urls WHERE user_id = $1", user_id)
-        .fetch_one(pool)
-        .await?;
-
-    Ok(total_urls.count.unwrap_or(0) as u64)
+    }
 }
 
 #[get("/{short_code}")]
@@ -143,17 +79,16 @@ async fn redirect(app_state: web::Data<AppState>, path: web::Path<String>) -> im
         return HttpResponse::BadRequest().json("Invalid short code format");
     }
 
-    match sqlx::query_as!(UrlModel, "SELECT * FROM urls WHERE id = $1", short_code)
-        .fetch_optional(&app_state.db)
-        .await
-    {
-        Ok(Some(url)) => HttpResponse::MovedPermanently()
-            .append_header((LOCATION, url.long_url))
+    let url_repo = PostgresUrlRepository::new(app_state.db.clone());
+    let use_cases = UrlUseCases { url_repo };
+
+    match use_cases.find_by_short_code(&short_code).await {
+        Ok(long_url) => HttpResponse::MovedPermanently()
+            .append_header((LOCATION, long_url))
             .finish(),
-        Ok(None) => HttpResponse::NotFound().json("URL not found, or has expired"),
         Err(e) => {
-            log::error!("Failed to fetch URL from database: {:?}", e);
-            HttpResponse::InternalServerError().json("Internal server error")
+            log::error!("Failed to redirect: {:?}", e);
+            HttpResponse::NotFound().json("URL not found")
         }
     }
 }
