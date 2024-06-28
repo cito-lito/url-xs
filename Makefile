@@ -64,9 +64,7 @@ test_db_create:
 test_migrate: test_db_create
 	@sqlx migrate run --database-url $(TEST_DB_URL) --source $(MIGRATION_PATH)
 
-# Run tests in single-threaded mode
-test:
-	@echo "Running tests..."
+test: 
 	cargo test -- --nocapture --color always
 
 

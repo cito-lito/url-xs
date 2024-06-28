@@ -1,3 +1,4 @@
+use crate::routes::config_routes;
 use actix_cors::Cors;
 use actix_web::{
     http::header,
@@ -6,8 +7,27 @@ use actix_web::{
 };
 
 use sqlx::postgres::PgPool;
+use sqlx::postgres::PgPoolOptions;
 
-use crate::routes::config_routes;
+// db config
+pub async fn get_pool() -> PgPool {
+    log::info!("Creating DB pool.");
+
+    let pool = PgPoolOptions::new()
+        .max_connections(8)
+        .connect(&std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
+        .await
+        .expect("Failed to create pool.");
+
+    log::info!("Running migrations.");
+
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("Failed to migrate.");
+
+    pool
+}
 
 pub struct AppState {
     pub db: PgPool,
@@ -23,16 +43,12 @@ impl Server {
         Self { host, port }
     }
     pub async fn run(&self) -> std::io::Result<()> {
-        log::info!("Starting server at http://{}:{}", self.host, self.port);
-
-        let pool =
-            PgPool::connect(&std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
-                .await
-                .expect("Failed to create pool.");
-
+        let pool = get_pool().await;
         let origin = std::env::var("ORIGIN_URL").unwrap_or("http://localhost:5173".to_string());
 
+        log::info!("Starting server at http://{}:{}", self.host, self.port);
         log::info!("ORIGIN URL: {}", origin);
+
         HttpServer::new(move || {
             let cors = Cors::default()
                 .allowed_origin(&origin)
