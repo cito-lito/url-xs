@@ -1,6 +1,7 @@
 use crate::domain::models::url::UrlModel;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -44,20 +45,23 @@ pub struct PaginationMetadata {
     pub page_size: u64,
 }
 
-impl From<UrlModel> for UserUrls {
-    fn from(data: UrlModel) -> Self {
+impl UserUrls {
+    fn from_url_model(data: UrlModel) -> Self {
         let base_url =
             std::env::var("SERVER_URL").unwrap_or_else(|_| "http://localhost:3003/".to_string());
-        let short_url = url::Url::parse(&base_url)
-            .unwrap()
-            .join(&data.id)
-            .unwrap()
-            .to_string();
+        let short_url = build_short_url(&base_url, &data.id)
+            .unwrap_or_else(|_| format!("{}/{}", base_url, data.id));
         Self {
             short_url,
             long_url: data.long_url,
             created_at: data.created_at.to_string(),
         }
+    }
+}
+
+impl From<UrlModel> for UserUrls {
+    fn from(data: UrlModel) -> Self {
+        UserUrls::from_url_model(data)
     }
 }
 
@@ -78,11 +82,8 @@ impl From<UrlModel> for UrlResponse {
     fn from(data: UrlModel) -> Self {
         let base_url =
             std::env::var("SERVER_URL").unwrap_or_else(|_| "http://localhost:3003/".to_string());
-        let short_url = url::Url::parse(&base_url)
-            .unwrap()
-            .join(&data.id)
-            .unwrap()
-            .to_string();
+        let short_url = build_short_url(&base_url, &data.id)
+            .unwrap_or_else(|_| format!("{}/{}", base_url, data.id));
         Self {
             short_url,
             long_url: data.long_url,
@@ -91,4 +92,10 @@ impl From<UrlModel> for UrlResponse {
             created_at: data.created_at,
         }
     }
+}
+
+fn build_short_url(base_url: &str, id: &str) -> Result<String, url::ParseError> {
+    Url::parse(base_url)
+        .and_then(|base| base.join(id))
+        .map(|url| url.to_string())
 }

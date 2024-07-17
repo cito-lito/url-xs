@@ -65,7 +65,7 @@ test_migrate: test_db_create
 	@sqlx migrate run --database-url $(TEST_DB_URL) --source $(MIGRATION_PATH)
 
 test: 
-	cargo test -- --nocapture --color always
+	cargo test -- --nocapture --color always --test-threads=1
 
 
 ###### runing on vps
