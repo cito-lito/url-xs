@@ -6,8 +6,8 @@ use actix_web::http::header::LOCATION;
 use actix_web::{get, post, web, HttpResponse, Responder};
 use url::Url;
 
-#[post("/create")]
-async fn create(app_state: web::Data<AppState>, url_dto: web::Json<UrlRequest>) -> impl Responder {
+#[post("/url")]
+async fn shorten(app_state: web::Data<AppState>, url_dto: web::Json<UrlRequest>) -> impl Responder {
     let url_dto = url_dto.into_inner();
 
     if !is_valid_https_url(&url_dto.long_url) {

@@ -8,7 +8,7 @@ use url_xs::{
 use crate::utils::{get_test_pool_db, truncate_all_tables};
 
 #[actix_rt::test]
-async fn test_create() {
+async fn test_shorten() {
     let pool = get_test_pool_db().await;
     truncate_all_tables(&pool).await;
 
@@ -29,7 +29,7 @@ async fn test_create() {
     };
 
     let resp = test::TestRequest::post()
-        .uri("/create")
+        .uri("/api/v1/url")
         .set_json(&mock_url_dto)
         .send_request(&app)
         .await;

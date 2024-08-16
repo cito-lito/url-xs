@@ -24,14 +24,14 @@ async fn test_get_user_urls_bad_req() {
     for _ in 0..42 {
         let mock_url_dto = generate_mock_user_url_entry(&user_id);
         let _ = test::TestRequest::post()
-            .uri("/create")
+            .uri("/api/v1/url")
             .set_json(&mock_url_dto)
             .send_request(&app)
             .await;
     }
 
     let resp = test::TestRequest::get()
-        .uri(&format!("/user/{}/urls?offset=3&limit=33", user_id))
+        .uri(&format!("/api/v1/user/{}/urls?offset=3&limit=33", user_id))
         .send_request(&app)
         .await;
 
@@ -55,14 +55,14 @@ async fn test_get_user_urls() {
     for _ in 0..101 {
         let mock_url_dto = generate_mock_user_url_entry(&user_id);
         let _ = test::TestRequest::post()
-            .uri("/create")
+            .uri("/api/v1/url")
             .set_json(&mock_url_dto)
             .send_request(&app)
             .await;
     }
 
     let resp = test::TestRequest::get()
-        .uri(&format!("/user/{}/urls?offset=21&limit=5", user_id))
+        .uri(&format!("/api/v1/user/{}/urls?offset=21&limit=5", user_id))
         .send_request(&app)
         .await;
 

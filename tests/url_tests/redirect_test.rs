@@ -28,7 +28,7 @@ async fn test_redirect() {
     };
 
     let created_url = test::TestRequest::post()
-        .uri("/create")
+        .uri("/api/v1/url")
         .set_json(&mock_url_dto)
         .send_request(&app)
         .await;
