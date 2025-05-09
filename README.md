@@ -18,7 +18,7 @@ use nanoId to generate unique short codes i.e, IDs
 
 #### Disadvantages:
 
-- Fixed lenght of code: For instance for 8 characters, and N=64 alphabet, we can generate ~281 trillions unique codes (64^8) and after genrating ~17 million codes, there is a ~1% chance of collision. more info [here](https://zelark.github.io/nano-id-cc/)
+- Fixed lenght of code: For instance for 8 characters, and N=64 alphabet, we can generate ~281 trillions unique codes (64^8). more info [here](https://zelark.github.io/nano-id-cc/)
 
 
 #### Future Considerations:
